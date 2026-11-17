@@ -373,3 +373,5 @@ appsettings.Production.json
 *.pem
 *.pubxml.user
 *.publishsettings
+# ASP.NET Core generated files
+appsettings.Development.json
