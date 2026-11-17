@@ -1,23 +1,33 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuizVerse.Models;
+using System.Diagnostics;
+using QuizVerse.Data;
 
 namespace QuizVerse.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            ViewBag.QuizCount = await _context.Quizzes.CountAsync(q => q.IsPublished);
 
+            var featured = await _context.Quizzes
+                .Include(q => q.Questions)
+                .Where(q => q.IsPublished)
+                .OrderByDescending(q => q.Id)
+                .Take(3)
+                .ToListAsync();
+
+            return View(featured);
+        }
         public IActionResult About()
         {
             return View();

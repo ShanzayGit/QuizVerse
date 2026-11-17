@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - QuizVerse</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/QuizVerse.styles.css" asp-append-version="true" />
 </head>
@@ -19,6 +20,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
@@ -31,25 +33,32 @@
                         </li>
                     </ul>
 
-                    @if (IsSectionDefined("AuthButtons"))
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        @await RenderSectionAsync("AuthButtons", required: false)
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted">Hello, @User.Identity.Name</span>
+                            <a class="btn btn-outline-primary"
+                               asp-controller="@(User.IsInRole("Admin") ? "Admin" : "User")"
+                               asp-action="Dashboard">Dashboard</a>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-primary">Logout</button>
+                            </form>
+                        </div>
                     }
                     else
                     {
                         <div class="d-flex gap-2">
                             <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Login</a>
-                            <a class="btn btn-primary" asp-controller="Account" asp-action="SignUp">Sign Up</a>
+                            <a class="btn btn-primary" asp-controller="Account" asp-action="Signup">Sign Up</a>
                         </div>
                     }
-            </div>
-            </div>
 
+                </div>
+            </div>
         </nav>
-
     </header>
-    <div class="container mb-3">
-        <main role="main" >
+    <div class="container">
+        <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
