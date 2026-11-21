@@ -79,7 +79,7 @@
                             <div class="card bg-secondary-subtle">
                                 <div class="card-body">
                                     <p class="card-title text-secondary">Attempts</p>
-                                    <p class="card-text">0</p>
+                                    <p class="card-text">@Model.TotalAttempts</p>
                                 </div>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
                                     <tr>
                                         <td>@m.Id</td>
                                         <td>@m.Title</td>
-                                        <td>@m.Questions.Count</td>
+                                        <td>@m.QuestionCount</td>
                                         <td>
                                             @if (@m.IsPublished)
                                                 {

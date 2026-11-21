@@ -12,4 +12,5 @@ public class Question
     public string Text { get; set; } = string.Empty;
 
     public int Marks { get; set; } = 1;
+    public List<AnswerOption> Option { get; set; } = new();
 }

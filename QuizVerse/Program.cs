@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuizVerse.Data;
 using QuizVerse.Models;
+using QuizVerse.Repositories;
+using QuizVerse.Reposotories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied";
 }); 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IAttemptRepository, AttemptRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -34,6 +41,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
 
     foreach (var role in new[] { "Admin", "User" })
     {
@@ -56,6 +64,15 @@ using (var scope = app.Services.CreateScope())
             await userManager.AddToRoleAsync(admin, "Admin");
     }
 
+    static Question Q(string text, string correct, params string[] wrong) => new()
+    {
+        Text = text,
+        Option = wrong.Select(w => new AnswerOption { text = w })
+            .Append(new AnswerOption { text = correct, IsCorrect = true })
+            .OrderBy(_ => Guid.NewGuid())
+            .ToList()
+    };
+
     if (!db.Quizzes.Any())
     {
         db.Quizzes.AddRange(
@@ -63,25 +80,38 @@ using (var scope = app.Services.CreateScope())
             {
                 Title = "C# Basics",
                 Description = "Test your knowledge of C# fundamentals.",
-                TimeLimitMinutes = 15,
+                TimeLimitMinutes = 10,
                 IsPublished = true,
-                Questions = new List<Question> { new() { Text = "What is a variable?" }, new() { Text = "What does static mean?" } }
+                Questions = new List<Question>
+                {
+                Q("Which keyword creates a new object?", "new", "make", "create", "alloc"),
+                Q("Which type stores true or false?", "bool", "int", "string", "char"),
+                Q("Which loop always runs at least once?", "do-while", "for", "foreach", "while")
+                }
             },
             new Quiz
             {
                 Title = "HTML Quiz",
-                Description = "Check your HTML and Bootstrap skills.",
-                TimeLimitMinutes = 20,
+                Description = "Check your HTML skills.",
+                TimeLimitMinutes = 10,
                 IsPublished = true,
-                Questions = new List<Question> { new() { Text = "What does HTML stand for?" } }
+                Questions = new List<Question>
+                {
+                Q("Which tag creates a hyperlink?", "<a>", "<link>", "<href>", "<url>"),
+                Q("Which tag is the largest heading?", "<h1>", "<h6>", "<head>", "<title>")
+                }
             },
             new Quiz
             {
                 Title = "SQL Intro",
-                Description = "Basic queries, joins and filtering.",
+                Description = "Basic queries and filtering.",
                 TimeLimitMinutes = 10,
                 IsPublished = false,
-                Questions = new List<Question> { new() { Text = "What does SELECT do?" } }
+                Questions = new List<Question>
+                {
+                Q("Which keyword reads rows from a table?", "SELECT", "GET", "FETCH", "OPEN"),
+                Q("Which clause filters rows?", "WHERE", "ORDER BY", "GROUP BY", "JOIN")
+                }
             });
         db.SaveChanges();
     }

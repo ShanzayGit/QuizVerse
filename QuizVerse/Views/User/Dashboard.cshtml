@@ -52,7 +52,7 @@
                             <div class="card bg-secondary-subtle">
                                 <div class="card-body">
                                     <p class="card-title text-secondary">Quizzes Taken</p>
-                                    <p class="card-text">0</p>
+                                    <p class="card-text">@Model.Stats.TotalAttempts</p>
                                 </div>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                             <div class="card bg-secondary-subtle">
                                 <div class="card-body">
                                     <p class="card-title text-secondary">Average</p>
-                                    <p class="card-text">N/A</p>
+                                    <p class="card-text">@Model.Stats.AveragePercentage.ToString("0")%</p>
                                 </div>
                             </div>
                         </div>
@@ -69,7 +69,7 @@
                         <div class="col-12 card bg-secondary-subtle">
                             <div class="card-body">
                                 <p class="card-title text-secondary">Best Score</p>
-                                <p class="card-text">N/A</p>
+                                <p class="card-text">@Model.Stats.bestPercentage.ToString("0")%</p>
                             </div>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                                     <div class="card-body">
                                         <h5 class="card-title">@m.Title</h5>
                                         <p class="card-text text-muted">@m.Description</p>
-                                        <span class="badge bg-primary me-1"><i class="bi bi-question-circle"></i> @m.Questions.Count Questions</span>
+                                        <span class="badge bg-primary me-1"><i class="bi bi-question-circle"></i> @m.QuestionCount Questions</span>
                                         <span class="badge bg-secondary"><i class="bi bi-clock"></i> @m.TimeLimitMinutes min</span>
                                     </div>
                                     <div class="card-footer bg-white border-0 pb-3">
@@ -96,27 +96,32 @@
                     <table class="table table-striped m-2 ">
                         <thead class="table-dark">
                             <tr>
-                                <th>Quiz</th>
-                                <th>Score</th>
-                                <th>Date</th>
+                                <th>Quiz  </th>
+                                <th>Score </th>
+                                <th>Time Taken </th>
+                                <th>Submitted On </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>C# Basics</td>
-                                <td>9/10</td>
-                                <td>03/Jan/2026</td>
-                            </tr>
-                            <tr>
-                                <td>SQL Intro</td>
-                                <td>8/8</td>
-                                <td>13/Feb/2026</td>
-                            </tr>
-                            <tr>
-                                <td>C# Advanced</td>
-                                <td>2/10</td>
-                                <td>03/Mar/2026</td>
-                            </tr>
+                            @if(Model.RecentAttempts.Any())
+                            {
+                                foreach(var m in Model.RecentAttempts)
+                                {
+                                <tr>
+                                    <td>@m.QuizTitle</td>
+                                    <td>@m.Score / @m.TotalMarks</td>
+                                    <td>@((m.EndTime-m.StartTime).TotalMinutes.ToString("0.0")) min</td>
+                                    <td>@m.EndTime.ToString("dd MMM yyyy ")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">No attempts yet. Start a quiz to see your results here.</td>
+                                </tr>
+
+                            }
                         </tbody>
                     </table>
                 </div>

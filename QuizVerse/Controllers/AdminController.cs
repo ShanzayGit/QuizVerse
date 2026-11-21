@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizVerse.Data;
 using QuizVerse.Models;
+using QuizVerse.Repositories;
 using QuizVerse.ViewModels;
 
 namespace QuizVerse.Controllers;
@@ -11,27 +12,25 @@ namespace QuizVerse.Controllers;
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUserRepository _User;
+    private readonly IQuizRepository _Quiz;
+    private readonly IAttemptRepository _Attempt;
 
-    public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public AdminController(IUserRepository user, IQuizRepository quiz, IAttemptRepository attempt)
     {
-        _context = context;
-        _userManager = userManager;
+        _User = user;
+        _Quiz = quiz;
+        _Attempt=attempt;
     }
 
     public async Task<IActionResult> Dashboard()
     {
         var model = new AdminDashboardViewModel
         {
-            TotalQuizzes = await _context.Quizzes.CountAsync(),
-            PublishedQuizzes = await _context.Quizzes.CountAsync(q => q.IsPublished),
-            TotalUsers = await _userManager.Users.CountAsync(),
-            RecentQuizzes = await _context.Quizzes
-                .Include(q => q.Questions)
-                .OrderByDescending(q => q.Id)
-                .Take(5)
-                .ToListAsync()
+            TotalQuizzes = await _Quiz.CountAsync(),
+            PublishedQuizzes = await _Quiz.CountAsync(true),
+            TotalUsers = await _User.CountAsync(),
+            RecentQuizzes = (await _Quiz.GetAllAsync()).Take(5).ToList()
         };
         return View(model);
     }

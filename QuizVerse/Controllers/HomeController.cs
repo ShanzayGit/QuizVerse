@@ -3,30 +3,26 @@ using Microsoft.EntityFrameworkCore;
 using QuizVerse.Models;
 using System.Diagnostics;
 using QuizVerse.Data;
+using QuizVerse.Repositories;
 
 namespace QuizVerse.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IQuizRepository _Quiz;
 
-        public HomeController(ApplicationDbContext context)
+        public HomeController(IQuizRepository quiz)
         {
-            _context = context;
+            _Quiz = quiz;
         }
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.QuizCount = await _context.Quizzes.CountAsync(q => q.IsPublished);
 
-            var featured = await _context.Quizzes
-                .Include(q => q.Questions)
-                .Where(q => q.IsPublished)
-                .OrderByDescending(q => q.Id)
-                .Take(3)
-                .ToListAsync();
+            var published =( await _Quiz.GetAllAsync(publishedOnly:true)).ToList();
+            ViewBag.QuizCount = published.Count;
 
-            return View(featured);
+            return View(published);
         }
         public IActionResult About()
         {
