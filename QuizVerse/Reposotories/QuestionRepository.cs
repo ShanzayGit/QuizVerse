@@ -14,16 +14,16 @@ namespace QuizVerse.Reposotories
         {
             _context = context;
         }
-      public async Task<IEnumerable<Question>> GetByQuizAsync(int quizId)
+        public async Task<IEnumerable<Question>> GetByQuizAsync(int quizId)
         {
             const string sql = @"
-            SELECT Id, QuizId, [Text], Marks FROM Questions WHERE QuizId = @QuizId ORDER BY Id;
+        SELECT Id, QuizId, [Text], Marks FROM Questions WHERE QuizId = @QuizId ORDER BY Id;
 
-            SELECT o.Id, o.QuestionId, o.[Text], o.IsCorrect
-            FROM AnswerOptions o
-            INNER JOIN Questions q ON q.Id = o.QuestionId
-            WHERE q.QuizId = @QuizId
-            ORDER BY o.Id;";
+        SELECT o.Id, o.QuestionId, o.[Text], o.IsCorrect
+        FROM AnswerOptions o
+        INNER JOIN Questions q ON q.Id = o.QuestionId
+        WHERE q.QuizId = @QuizId
+        ORDER BY o.Id;";
 
             using var connection = _context.CreateConnection();
             using var multi = await connection.QueryMultipleAsync(sql, new { QuizId = quizId });

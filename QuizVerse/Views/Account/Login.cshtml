@@ -7,7 +7,10 @@
     <div class="col-md-5">
         <div class="card p-4 shadow-sm">
             <h4 class="text-center mb-3">Login</h4>
-
+            @if (TempData["Info"] != null)
+            {
+                <div class="alert alert-success">@TempData["Info"]</div>
+            }
             <form asp-action="Login" method="post">
                 <div asp-validation-summary="All" class="text-danger"></div>
 
@@ -27,6 +30,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">Login</button>
+                <a asp-action="ForgotPassword" class="d-block text-center mt-2">Forgot password?</a>
             </form>
 
             <p class="text-center mt-3 mb-0">No account? <a asp-action="Signup">Sign up</a></p>

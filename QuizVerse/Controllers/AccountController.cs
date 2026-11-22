@@ -89,6 +89,53 @@ namespace QuizVerse.Controllers
         }
 
         public IActionResult AccessDenied() => View();
+        [HttpGet]
+        public IActionResult ForgotPassword() => View();
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var link = Url.Action("ResetPassword", "Account",
+                    new { email = model.Email, token }, Request.Scheme);
+
+                // Demo only: a real app emails this link instead of showing it.
+                TempData["ResetLink"] = link;
+            }
+
+            TempData["Info"] = "If that email is registered, a reset link has been created.";
+            return RedirectToAction(nameof(ForgotPassword));
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token)) return BadRequest();
+            return View(new ResetPasswordViewModel { Email = email, Token = token });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null) return RedirectToAction(nameof(Login));
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (result.Succeeded)
+            {
+                TempData["Info"] = "Password reset. You can log in now.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            foreach (var e in result.Errors) ModelState.AddModelError(string.Empty, e.Description);
+            return View(model);
+        }
     }
 }

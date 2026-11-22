@@ -1,0 +1,87 @@
+﻿@model QuestionsPageViewModel
+@{
+    ViewData["Title"] = "Questions";
+}
+@Html.AntiForgeryToken()
+
+<a asp-controller="Quizzes" asp-action="Index" class="btn btn-sm btn-outline-secondary mb-3">&larr; Back to quizzes</a>
+<h3>@Model.Quiz.Title <small class="text-muted fs-6">Questions</small></h3>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        @foreach (var q in Model.Questions)
+        {
+            <div class="card mb-3" id="q-@q.Id">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h6>@q.Text <span class="badge bg-secondary">@q.Marks pt</span></h6>
+                        <button class="btn btn-sm btn-outline-danger btn-del-q" data-id="@q.Id">Delete</button>
+                    </div>
+                    <ul class="mb-0">
+                        @foreach (var o in q.Option)
+                        {
+                            <li class="@(o.IsCorrect ? "text-success fw-bold" : "")">@o.text @(o.IsCorrect ? "(correct)" : "")</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+        @if (!Model.Questions.Any())
+        {
+            <p class="text-muted">No questions yet. Add the first one.</p>
+        }
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card p-3 shadow-sm">
+            <h5>Add question</h5>
+            <form asp-action="Add" method="post">
+                <input type="hidden" name="QuizId" value="@Model.Quiz.Id" />
+                <div class="mb-2">
+                    <label class="form-label">Question</label>
+                    <textarea name="Text" class="form-control" rows="2" required></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Marks</label>
+                    <input name="Marks" type="number" min="1" value="1" class="form-control" required />
+                </div>
+                @for (int i = 1; i <= 4; i++)
+                {
+                    <div class="input-group mb-2">
+                        <div class="input-group-text">
+                            <input type="radio" name="CorrectOption" value="@i" class="form-check-input mt-0" checked="@(i == 1)" />
+                        </div>
+                        <input name="Option@(i)" class="form-control" placeholder="Option @i" required />
+                    </div>
+                }
+                <small class="text-muted d-block mb-2">Select the radio button beside the correct answer.</small>
+                <button type="submit" class="btn btn-primary w-100">Add Question</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $(".btn-del-q").on("click", function () {
+                var id = $(this).data("id");
+                if (!confirm("Delete this question?")) return;
+
+                $.ajax({
+                    url: "/Questions/Delete/" + id,
+                    type: "DELETE",
+                    headers: { "RequestVerificationToken": token },
+                    success: function (res) { if (res.success) $("#q-" + id).remove(); }
+                });
+            });
+        });
+    </script>
+}

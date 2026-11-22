@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Attempt>
+@{
+    ViewData["Title"] = "Attempts";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<h3 class="mb-3">@(isAdmin ? "All Attempts" : "My Attempts")</h3>
+
+<table class="table table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            @if (isAdmin)
+            {
+                <th>User</th>
+            }
+            <th>Quiz</th>
+            <th>Score</th>
+            <th>Time taken</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                @if (isAdmin)
+                {
+                    <td>@a.UserName</td>
+                }
+                <td>@a.QuizTitle</td>
+                <td>@a.Score / @a.TotalMarks (@a.Percentage%)</td>
+                <td>@((a.EndTime - a.StartTime).TotalMinutes.ToString("0.0")) min</td>
+                <td>@a.EndTime.ToString("dd MMM yyyy, hh:mm tt")</td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="5" class="text-center text-muted py-3">No attempts yet.</td></tr>
+        }
+    </tbody>
+</table>

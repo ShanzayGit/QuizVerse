@@ -1,0 +1,78 @@
+﻿@model TakeQuizViewModel
+@{
+    ViewData["Title"] = Model.Quiz.Title;
+}
+@Html.AntiForgeryToken()
+
+<h3>@Model.Quiz.Title</h3>
+<p class="text-muted">@Model.Quiz.Description (@Model.Quiz.TimeLimitMinutes minutes)</p>
+
+<div id="result" class="alert alert-success text-center fs-5 d-none"></div>
+
+@if (!Model.Questions.Any())
+{
+    <p class="text-muted">This quiz has no questions yet.</p>
+}
+else
+{
+    <div id="quizArea" data-quiz-id="@Model.Quiz.Id" data-started="@(DateTime.Now.ToString("o"))">
+        @for (var i = 0; i < Model.Questions.Count; i++)
+        {
+            var q = Model.Questions[i];
+            <div class="card mb-3 question" data-question-id="@q.Id">
+                <div class="card-body">
+                    <h6>@(i + 1). @q.Text <span class="badge bg-secondary">@q.Marks pt</span></h6>
+                    @foreach (var o in q.Option)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="q@(q.Id)" id="o@(o.Id)" value="@o.Id" />
+                            <label class="form-check-label" for="o@(o.Id)">@o.text</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        <button id="submitQuiz" class="btn btn-success">Submit Quiz</button>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#submitQuiz").on("click", function () {
+                var area = $("#quizArea");
+                var answers = [];
+
+                $(".question").each(function () {
+                    var chosen = $(this).find("input:radio:checked").val();
+                    if (chosen) {
+                        answers.push({ questionId: $(this).data("question-id"), optionId: parseInt(chosen) });
+                    }
+                });
+
+                if (answers.length < $(".question").length &&
+                    !confirm("Some questions are unanswered. Submit anyway?")) return;
+
+                $.ajax({
+                    url: "/TakeQuiz/Submit",
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    data: JSON.stringify({
+                        quizId: area.data("quiz-id"),
+                        startedOn: area.attr("data-started"),
+                        answers: answers
+                    }),
+                    success: function (res) {
+                        $("#submitQuiz").prop("disabled", true);
+                        $("input:radio").prop("disabled", true);
+                        $("#result").removeClass("d-none")
+                            .html("You scored <b>" + res.score + " / " + res.total + "</b> (" + res.percent + "%)");
+                        window.scrollTo(0, 0);
+                    },
+                    error: function () { alert("Could not submit the quiz. Please try again."); }
+                });
+            });
+        });
+    </script>
+}

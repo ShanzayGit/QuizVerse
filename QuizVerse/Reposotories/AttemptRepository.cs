@@ -24,14 +24,13 @@ namespace QuizVerse.Reposotories
         public async Task<int> CreateAsync(Attempt attempt)
         {
             const string sql = @"
-            INSERT INTO Attempts (QuizId, UserId, Score, TotalMarks, StartTime, EndTime)
-            VALUES (@QuizId, @UserId, @Score, @TotalMarks, @StartTime, @EndTime);
-            SELECT CAST(SCOPE_IDENTITY() AS int);";
+        INSERT INTO Attempts (QuizId, UserId, Score, TotalMarks, StartTime, EndTime)
+        VALUES (@QuizId, @UserId, @Score, @TotalMarks, @StartTime, @EndTime);
+        SELECT CAST(SCOPE_IDENTITY() AS int);";
 
             using var connection = _context.CreateConnection();
             return await connection.ExecuteScalarAsync<int>(sql, attempt);
         }
-
         public async Task<IEnumerable<Attempt>> GetByUserAsync(string userId)
         {
             using var connection = _context.CreateConnection();
@@ -50,8 +49,8 @@ namespace QuizVerse.Reposotories
         {
             const string sql = @"
             SELECT COUNT(*) AS TotalAttempts,
-                   ISNULL(AVG(Score * 100.0 / NULLIF(TotalMarks, 0)), 0) AS AveragePercent,
-                   ISNULL(MAX(Score * 100.0 / NULLIF(TotalMarks, 0)), 0) AS BestPercent
+                   ISNULL(AVG(Score * 100.0 / NULLIF(TotalMarks, 0)), 0) AS AveragePercentage,
+                   ISNULL(MAX(Score * 100.0 / NULLIF(TotalMarks, 0)), 0) AS BestPercentage
             FROM Attempts
             WHERE UserId = @UserId";
 

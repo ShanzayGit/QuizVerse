@@ -17,7 +17,7 @@ namespace QuizVerse.Reposotories
         private const string SelectQuiz = @"
         SELECT q.Id, q.Title, q.Description, q.TimeLimitMinutes, q.IsPublished,
                (SELECT COUNT(*) FROM Questions WHERE QuizId = q.Id) AS QuestionCount
-        FROM Quizzes q";
+        FROM Quizzes q ";
         public async Task<IEnumerable<Quiz>> GetAllAsync(string? search = null, bool publishedOnly = false)
         {
             var sql = SelectQuiz + " WHERE 1 = 1";
@@ -41,9 +41,14 @@ namespace QuizVerse.Reposotories
         }
         public async Task<Quiz?> GetByIdAsync(int id)
         {
-            var query = SelectQuiz + @"WHERE q.Id=@id";
-            using var connection=_context.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Quiz>(query, new {Id=id});
+            const string sql = @"
+        SELECT q.Id, q.Title, q.Description, q.TimeLimitMinutes, q.IsPublished,
+               (SELECT COUNT(*) FROM Questions WHERE QuizId = q.Id) AS QuestionCount
+        FROM Quizzes AS q
+        WHERE q.Id = @Id";
+
+            using var connection = _context.CreateConnection();
+            return await connection.QuerySingleOrDefaultAsync<Quiz>(sql, new { Id = id });
         }
         public async Task<int> CreateAsync(Quiz quiz)
         {

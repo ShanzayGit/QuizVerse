@@ -23,14 +23,19 @@
                             <i class="bi bi-speedometer2 me-2"></i>Dashboard
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="#">
+                    @* <li class="nav-item">
+                        <a class="nav-link text-dark" asp-controller="Quizzes" asp-action="Index">
                             <i class="bi bi-journal-text me-2"></i>Quizzes
+                        </a>
+                    </li> *@
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-controller="Attempts" asp-action="Index">
+                            <i class="bi bi-bar-chart me-2"></i>My Attempts
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="#">
-                            <i class="bi bi-bar-chart me-2"></i>My Attempts
+                        <a class="nav-link text-dark" href="#Available">
+                            <i class="bi bi-pie-chart me-2"></i>Available quizess
                         </a>
                     </li>
                     <li class="nav-item mt-4">
@@ -60,7 +65,7 @@
                             <div class="card bg-secondary-subtle">
                                 <div class="card-body">
                                     <p class="card-title text-secondary">Average</p>
-                                    <p class="card-text">@Model.Stats.AveragePercentage.ToString("0")%</p>
+                                    <p class="card-text">@Model.Stats.AveragePercentage.ToString("F2") %</p>
                                 </div>
                             </div>
                         </div>
@@ -69,11 +74,11 @@
                         <div class="col-12 card bg-secondary-subtle">
                             <div class="card-body">
                                 <p class="card-title text-secondary">Best Score</p>
-                                <p class="card-text">@Model.Stats.bestPercentage.ToString("0")%</p>
+                                <p class="card-text">@Model.Stats.BestPercentage.ToString("F2") %</p>
                             </div>
                         </div>
                     </div>
-                    <h4 class="mt-4 mb-3">Available Quizzes</h4>
+                    <h4 class="mt-4 mb-3" id="Available">Available Quizzes</h4>
 
                     <div class="row g-3">
                         @foreach (var m in Model.AvailableQuizzes)
@@ -87,7 +92,7 @@
                                         <span class="badge bg-secondary"><i class="bi bi-clock"></i> @m.TimeLimitMinutes min</span>
                                     </div>
                                     <div class="card-footer bg-white border-0 pb-3">
-                                        <a href="#" class="btn btn-primary w-100">Start Quiz</a>
+                                        <a asp-controller="TakeQuiz" asp-action="Start" asp-route-id="@m.Id" class="btn btn-primary w-100">Start Quiz</a>
                                     </div>
                                 </div>
                             </div>

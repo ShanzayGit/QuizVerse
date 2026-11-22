@@ -260,7 +260,7 @@ namespace QuizVerse.Migrations
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("QuizId")
+                    b.Property<int>("QuizId")
                         .HasColumnType("int");
 
                     b.Property<int>("Score")
@@ -404,7 +404,9 @@ namespace QuizVerse.Migrations
                 {
                     b.HasOne("QuizVerse.Models.Quiz", "Quiz")
                         .WithMany()
-                        .HasForeignKey("QuizId");
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("QuizVerse.Models.ApplicationUser", "User")
                         .WithMany()

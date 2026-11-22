@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Quiz>
+
+<table class="table table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>Title</th>
+            <th>Questions</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var q in Model)
+        {
+            <tr id="row-@q.Id">
+                <td>@q.Title</td>
+                <td>@q.QuestionCount</td>
+                <td>@q.TimeLimitMinutes min</td>
+                <td>
+                    <span class="badge status-badge @(q.IsPublished ? "bg-success" : "bg-secondary")">
+                        @(q.IsPublished ? "Published" : "Draft")
+                    </span>
+                </td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-secondary btn-toggle" data-id="@q.Id" data-published="@q.IsPublished.ToString().ToLower()">
+                        @(q.IsPublished ? "Unpublish" : "Publish")
+                    </button>
+                    <a asp-controller="Questions" asp-action="Index" asp-route-quizId="@q.Id" class="btn btn-sm btn-outline-info">Questions</a>
+                    <a asp-action="Edit" asp-route-id="@q.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="@q.Id">Delete</button>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="5" class="text-center text-muted py-3">No quizzes found.</td></tr>
+        }
+    </tbody>
+</table>

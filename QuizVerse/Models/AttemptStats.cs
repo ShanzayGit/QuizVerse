@@ -4,6 +4,6 @@
     {
         public int TotalAttempts {  get; set; }
         public decimal AveragePercentage {  get; set; }
-        public decimal bestPercentage {  get; set; }
+        public decimal BestPercentage {  get; set; }
     }
 }
