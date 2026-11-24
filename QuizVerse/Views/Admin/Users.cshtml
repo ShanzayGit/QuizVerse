@@ -1,0 +1,22 @@
+﻿@model IEnumerable<UserListItem>
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h3 class="mb-3">Registered Users</h3>
+<table class="table table-striped align-middle">
+    <thead class="table-dark">
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.Name</td>
+                <td>@u.Email</td>
+                <td><span class="badge @(u.Role == "Admin" ? "bg-danger" : "bg-primary")">@u.Role</span></td>
+                <td>@u.RegisteredOn.ToString("dd MMM yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

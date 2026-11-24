@@ -40,6 +40,7 @@ namespace QuizVerse.Controllers
                 Email = model.Email,
                 FullName = model.FullName
             };
+
            var result= await _userManager.CreateAsync(user,model.Password);
             if (result.Succeeded)
             {
@@ -66,9 +67,14 @@ namespace QuizVerse.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var result = await _signInManager.PasswordSignInAsync(
-                model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
 
-            if (result.Succeeded)
+            if (result.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty, "Too many failed attempts. Try again in 5 minutes.");
+                return View(model);
+            }
+           if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
@@ -76,8 +82,6 @@ namespace QuizVerse.Controllers
 
                 return RedirectToAction("Dashboard", "User");
             }
-
-            ModelState.AddModelError(string.Empty, "Invalid email or password.");
             return View(model);
         }
 

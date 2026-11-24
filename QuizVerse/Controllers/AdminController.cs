@@ -33,5 +33,7 @@ public class AdminController : Controller
             RecentQuizzes = (await _Quiz.GetAllAsync()).Take(5).ToList()
         };
         return View(model);
+ 
     }
+    public async Task<IActionResult> Users() => View(await _User.GetAllAsync());
 }

@@ -23,12 +23,11 @@ namespace QuizVerse.Reposotories
         public async Task<IEnumerable<UserListItem>> GetAllAsync()
         {
             const string sql = @"
-            SELECT u.Id, u.FullName, u.Email, ISNULL(r.Name, 'None') AS Role
-            FROM AspNetUsers u
-            LEFT JOIN AspNetUserRoles ur ON ur.UserId = u.Id
-            LEFT JOIN AspNetRoles r ON r.Id = ur.RoleId
-            ORDER BY u.FullName";
-
+    SELECT u.Id, u.FullName, u.Email, u.RegisteredOn, ISNULL(r.Name, 'None') AS Role
+    FROM AspNetUsers u
+    LEFT JOIN AspNetUserRoles ur ON ur.UserId = u.Id
+    LEFT JOIN AspNetRoles r ON r.Id = ur.RoleId
+    ORDER BY u.FullName";
             using var connection = _context.CreateConnection();
             return await connection.QueryAsync<UserListItem>(sql);
         }
